@@ -12,7 +12,7 @@ steps:
     RunAsPreJob: false
 
 - script: |
-    echo "<settings>
+    echo '<settings>
     <servers>
       <server>
         <id>github</id>
@@ -20,7 +20,7 @@ steps:
         <password>$(SECRET-TOKEN)</password>
       </server>
     </servers>
-    </settings>" > $(Build.SourcesDirectory)/settings.xml
+    </settings>' > $(Build.SourcesDirectory)/settings.xml
   displayName: "Create temporary settings.xml"
 
 - task: Maven@3
