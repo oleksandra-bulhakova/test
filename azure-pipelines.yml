@@ -36,5 +36,5 @@ steps:
     goals: 'package'
     
 - script: |
-    del $(Build.SourcesDirectory)/settings.xml
+    if exist "$(Build.SourcesDirectory)\settings.xml" del "$(Build.SourcesDirectory)\settings.xml"
   displayName: "Delete temporary settings.xml"
