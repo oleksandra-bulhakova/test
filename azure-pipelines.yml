@@ -1,18 +1,33 @@
-# Maven
-# Build your Java project and run tests with Apache Maven.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
-
 trigger:
 - master
 
 pool: mycomputeragent
 
 steps:
+- task: AzureKeyVault@2
+  inputs:
+    azureSubscription: 'MyAzureSubscription'
+    KeyVaultName: 'testkeyvault88' 
+    SecretsFilter: 'SECRET-TOKEN'
+    RunAsPreJob: false
+
+- script: |
+    echo "<settings>
+    <servers>
+      <server>
+        <id>github</id>
+        <username>oleksandra-bulhakova</username>
+        <password>$(SECRET-TOKEN)</password>
+      </server>
+    </servers>
+    </settings>" > $(Build.SourcesDirectory)/settings.xml
+  displayName: "Create temporary settings.xml"
+
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
     mavenOptions: '-Xmx3072m'
+    options: '--settings $(Build.SourcesDirectory)/settings.xml'
     javaHomeOption: 'Path'
     jdkUserInputPath: 'C:\Users\o.bulhakova\.jdks\openjdk-22.0.2'
     jdkArchitectureOption: 'x64'
