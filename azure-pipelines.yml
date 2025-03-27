@@ -12,15 +12,15 @@ steps:
     RunAsPreJob: false
 
 - script: |
-    echo '<settings>
-    <servers>
-      <server>
-        <id>github</id>
-        <username>oleksandra-bulhakova</username>
-        <password>$(SECRET-TOKEN)</password>
-      </server>
-    </servers>
-    </settings>' > $(Build.SourcesDirectory)/settings.xml
+    echo ^<settings^> > $(Build.SourcesDirectory)/settings.xml
+    echo ^<servers^> >> $(Build.SourcesDirectory)/settings.xml
+    echo ^<server^> >> $(Build.SourcesDirectory)/settings.xml
+    echo ^<id^>github^</id^> >> $(Build.SourcesDirectory)/settings.xml
+    echo ^<username^>oleksandra-bulhakova^</username^> >> $(Build.SourcesDirectory)/settings.xml
+    echo ^<password^>$(SECRET-TOKEN)^</password^> >> $(Build.SourcesDirectory)/settings.xml
+    echo ^</server^> >> $(Build.SourcesDirectory)/settings.xml
+    echo ^</servers^> >> $(Build.SourcesDirectory)/settings.xml
+    echo ^</settings^> >> $(Build.SourcesDirectory)/settings.xml
   displayName: "Create temporary settings.xml"
 
 - task: Maven@3
