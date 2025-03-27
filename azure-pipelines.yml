@@ -34,3 +34,7 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
+    
+- script: |
+    del $(Build.SourcesDirectory)/settings.xml
+  displayName: "Delete temporary settings.xml"
