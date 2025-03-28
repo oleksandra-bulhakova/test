@@ -1,0 +1,38 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: AzureKeyVault@2
+  inputs:
+    azureSubscription: 'MyAzureSubscription'
+    KeyVaultName: 'testkeyvault88' 
+    SecretsFilter: 'SECRET-TOKEN'
+    RunAsPreJob: false
+
+- script: |
+        echo "<settings>" > $(Build.SourcesDirectory)/settings.xml
+        echo "  <servers>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "    <server>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "      <id>github</id>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "      <username>oleksandra-bulhakova</username>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "      <password>$(SECRET-TOKEN)</password>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "    </server>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "  </servers>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "</settings>" >> $(Build.SourcesDirectory)/settings.xml
+  displayName: "Create temporary settings.xml"
+
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    options: '--settings $(Build.SourcesDirectory)/settings.xml'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.21'
+    mavenVersionOption: 'Default'
+    
+- script: |
+        rm -f $(Build.SourcesDirectory)/settings.xml
+  displayName: "Delete temporary settings.xml"
