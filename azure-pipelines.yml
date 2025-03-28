@@ -1,7 +1,8 @@
 trigger:
 - master
 
-pool: mycomputeragent
+pool:
+  vmImage: 'ubuntu-latest'
 
 steps:
 - task: AzureKeyVault@2
@@ -12,15 +13,15 @@ steps:
     RunAsPreJob: false
 
 - script: |
-    echo ^<settings^> > $(Build.SourcesDirectory)/settings.xml
-    echo ^<servers^> >> $(Build.SourcesDirectory)/settings.xml
-    echo ^<server^> >> $(Build.SourcesDirectory)/settings.xml
-    echo ^<id^>github^</id^> >> $(Build.SourcesDirectory)/settings.xml
-    echo ^<username^>oleksandra-bulhakova^</username^> >> $(Build.SourcesDirectory)/settings.xml
-    echo ^<password^>$(SECRET-TOKEN)^</password^> >> $(Build.SourcesDirectory)/settings.xml
-    echo ^</server^> >> $(Build.SourcesDirectory)/settings.xml
-    echo ^</servers^> >> $(Build.SourcesDirectory)/settings.xml
-    echo ^</settings^> >> $(Build.SourcesDirectory)/settings.xml
+        echo "<settings>" > $(Build.SourcesDirectory)/settings.xml
+        echo "  <servers>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "    <server>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "      <id>github</id>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "      <username>oleksandra-bulhakova</username>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "      <password>$(SECRET-TOKEN)</password>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "    </server>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "  </servers>" >> $(Build.SourcesDirectory)/settings.xml
+        echo "</settings>" >> $(Build.SourcesDirectory)/settings.xml
   displayName: "Create temporary settings.xml"
 
 - task: Maven@3
@@ -28,13 +29,13 @@ steps:
     mavenPomFile: 'pom.xml'
     mavenOptions: '-Xmx3072m'
     options: '--settings $(Build.SourcesDirectory)/settings.xml'
-    javaHomeOption: 'Path'
-    jdkUserInputPath: 'C:\Users\o.bulhakova\.jdks\openjdk-22.0.2'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.21'
     jdkArchitectureOption: 'x64'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
     goals: 'package'
     
 - script: |
-    if exist "$(Build.SourcesDirectory)\settings.xml" del "$(Build.SourcesDirectory)\settings.xml"
+        rm -f $(Build.SourcesDirectory)/settings.xml
   displayName: "Delete temporary settings.xml"
