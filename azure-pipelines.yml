@@ -14,6 +14,7 @@ variables:
 steps:
 - task: AzureCLI@2
   inputs:
+    azureSubscription: 'MyAzureSubscription'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
