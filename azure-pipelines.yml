@@ -3,26 +3,37 @@ trigger:
 
 pool:
   vmImage: 'ubuntu-latest'
+  
+variables:
+  AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+  AZURE_TENANT_ID: $(AZURE_TENANT_ID)
+  AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+  KEY_VAULT_NAME: 'TestAccessControle'
+  SECRET_NAME: 'SECRET-TOKEN'
 
 steps:
-- task: AzureKeyVault@2
+- task: AzureCLI@2
   inputs:
-    azureSubscription: 'MyAzureSubscription'
-    KeyVaultName: 'TestAccessControle' 
-    SecretsFilter: 'SECRET-TOKEN'
-    RunAsPreJob: false
-
-- script: |
-        echo "<settings>" > $(Build.SourcesDirectory)/settings.xml
-        echo "  <servers>" >> $(Build.SourcesDirectory)/settings.xml
-        echo "    <server>" >> $(Build.SourcesDirectory)/settings.xml
-        echo "      <id>github</id>" >> $(Build.SourcesDirectory)/settings.xml
-        echo "      <username>oleksandra-bulhakova</username>" >> $(Build.SourcesDirectory)/settings.xml
-        echo "      <password>$(SECRET-TOKEN)</password>" >> $(Build.SourcesDirectory)/settings.xml
-        echo "    </server>" >> $(Build.SourcesDirectory)/settings.xml
-        echo "  </servers>" >> $(Build.SourcesDirectory)/settings.xml
-        echo "</settings>" >> $(Build.SourcesDirectory)/settings.xml
-  displayName: "Create temporary settings.xml"
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+      
+      secret=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name $SECRET_NAME --query value -o tsv)
+      
+      echo "<settings>" > $(Build.SourcesDirectory)/settings.xml
+      echo "  <servers>" >> $(Build.SourcesDirectory)/settings.xml
+      echo "    <server>" >> $(Build.SourcesDirectory)/settings.xml
+      echo "      <id>github</id>" >> $(Build.SourcesDirectory)/settings.xml
+      echo "      <username>oleksandra-bulhakova</username>" >> $(Build.SourcesDirectory)/settings.xml
+      echo "      <password>$secret</password>" >> $(Build.SourcesDirectory)/settings.xml
+      echo "    </server>" >> $(Build.SourcesDirectory)/settings.xml
+      echo "  </servers>" >> $(Build.SourcesDirectory)/settings.xml
+      echo "</settings>" >> $(Build.SourcesDirectory)/settings.xml
+  env:
+    AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+    AZURE_TENANT_ID: $(AZURE_TENANT_ID)
+    AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
 
 - task: Maven@3
   inputs:
