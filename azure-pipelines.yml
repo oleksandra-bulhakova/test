@@ -18,8 +18,7 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
-      
+      az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant f019b96d-6abe-4c96-8941-4ac0061ca4e8      
       secret=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name $SECRET_NAME --query value -o tsv)
       echo "Secret retrieved: $secret"
       echo "<settings>" > $(Build.SourcesDirectory)/settings.xml
