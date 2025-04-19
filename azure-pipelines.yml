@@ -8,8 +8,6 @@ variables:
 - group: 'AzureCredentials'  
 - name: KEY_VAULT_NAME
   value: 'keyVaultSecond'
-- name: SECRET_NAME
-  value: 'LOGGING-KEY'
 
 steps:
 - task: AzureCLI@2
