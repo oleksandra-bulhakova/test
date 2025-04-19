@@ -14,13 +14,13 @@ variables:
 steps:
 - task: AzureCLI@2
   inputs:
-    azureSubscription: 'MyAzureSubscription'
+    addSpnToEnvironment: false
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
       az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
       
-      secret=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name $SECRET_NAME --query value -o tsv)
+      secret=$(az keyvault secret show --vault-name "$KEY_VAULT_NAME" --name "$SECRET_NAME" --query value -o tsv)
       
       echo "<settings>" > $(Build.SourcesDirectory)/settings.xml
       echo "  <servers>" >> $(Build.SourcesDirectory)/settings.xml
