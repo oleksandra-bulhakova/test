@@ -3,13 +3,13 @@ trigger:
 
 pool:
   vmImage: 'ubuntu-latest'
-  
+
 variables:
-  AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
-  AZURE_TENANT_ID: $(AZURE_TENANT_ID)
-  AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
-  KEY_VAULT_NAME: 'TestAccessControle'
-  SECRET_NAME: 'SECRET-TOKEN'
+- group: 'AzureCredentials'  
+- name: KEY_VAULT_NAME
+  value: 'keyVaultSecond'
+- name: SECRET_NAME
+  value: 'LOGGING-KEY'
 
 steps:
 - task: AzureCLI@2
@@ -18,9 +18,10 @@ steps:
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
-      az login --service-principal -u 162973af-64a3-4dac-85a7-24403002690c -p $AZURE_CLIENT_SECRET --tenant f019b96d-6abe-4c96-8941-4ac0061ca4e8      
+      az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
+      
       secret=$(az keyvault secret show --vault-name $KEY_VAULT_NAME --name $SECRET_NAME --query value -o tsv)
-      echo "Secret retrieved: $secret"
+      
       echo "<settings>" > $(Build.SourcesDirectory)/settings.xml
       echo "  <servers>" >> $(Build.SourcesDirectory)/settings.xml
       echo "    <server>" >> $(Build.SourcesDirectory)/settings.xml
@@ -38,12 +39,11 @@ steps:
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
-    mavenOptions: '-Xmx3072m'
-    options: '--settings $(Build.SourcesDirectory)/settings.xml'
+    options: '-Dmaven.test.skip=true -s $(Build.SourcesDirectory)/settings.xml'
     javaHomeOption: 'JDKVersion'
     jdkVersionOption: '1.21'
     mavenVersionOption: 'Default'
-    
+
 - script: |
-        rm -f $(Build.SourcesDirectory)/settings.xml
+    rm -f $(Build.SourcesDirectory)/settings.xml
   displayName: "Delete temporary settings.xml"
