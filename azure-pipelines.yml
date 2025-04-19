@@ -14,7 +14,7 @@ variables:
 steps:
 - task: AzureCLI@2
   inputs:
-    addSpnToEnvironment: false
+    azureSubscription: 'MyAzureSubscription'
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |
